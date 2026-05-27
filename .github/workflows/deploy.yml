@@ -1,4 +1,4 @@
-name: Deploy Static Website
+name: Deploy to Vercel
 
 on:
   push:
@@ -13,20 +13,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-north-1
-
-    - name: Sync S3 bucket
-      run: |
-        aws s3 sync ./ s3://abhishekmukherjee-aws --delete
-
-    - name: Invalidate CloudFront cache
-      if: success()
-      run: |
-        aws cloudfront create-invalidation \
-          --distribution-id EBA9JK5AY2QZH \
-          --paths "/*"
+    - name: Deploy to Vercel
+      run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+      env:
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
